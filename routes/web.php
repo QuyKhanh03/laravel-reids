@@ -1,6 +1,9 @@
 <?php
 
+use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redis;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +19,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     dispatch(new App\Jobs\SendMailJob());
     return view('welcome');
+});
+Route::get('users', function () {
+//    Redis::del('users_data');
+    $cachedData = Redis::get('users_data');
+    if ($cachedData) {
+        return json_decode($cachedData);
+    }
+    $users = User::all();
+    Redis::set('users_data', json_encode($users));
+    return $users;
 });
