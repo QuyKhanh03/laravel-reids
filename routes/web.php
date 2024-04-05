@@ -20,13 +20,19 @@ Route::get('/', function () {
     dispatch(new App\Jobs\SendMailJob());
     return view('welcome');
 });
+
+
 Route::get('users', function () {
-//    Redis::del('users_data');
-    $cachedData = Redis::get('users_data');
-    if ($cachedData) {
-        return json_decode($cachedData);
-    }
-    $users = User::all();
-    Redis::set('users_data', json_encode($users));
-    return $users;
+
+});
+
+
+//posts
+Route::get('posts', function () {
+
+    $cachedData = Cache::remember('posts', 60, function () {
+        return \App\Models\Post::all();
+    });
+    return $cachedData;
+
 });
